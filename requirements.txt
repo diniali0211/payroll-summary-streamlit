@@ -4,3 +4,4 @@ numpy
 fpdf
 python-docx
 openpyxl
+xlsxwriter
