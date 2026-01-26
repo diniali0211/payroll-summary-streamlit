@@ -78,14 +78,20 @@ def numcol(df, name, alts=None, default=0):
 @st.cache_data(show_spinner=False)
 def get_sheet_names(file_bytes):
     with io.BytesIO(file_bytes) as bio:
-        return tuple(pd.ExcelFile(bio).sheet_names)
+        return tuple(pd.ExcelFile(bio, engine="openpyxl").sheet_names)
 
 @st.cache_data(show_spinner=False)
 def read_sheet(file_bytes, sheet_name, header_row):
     with io.BytesIO(file_bytes) as bio:
-        df = pd.read_excel(bio, sheet_name=sheet_name, header=header_row)
+        df = pd.read_excel(
+            bio,
+            sheet_name=sheet_name,
+            header=header_row,
+            engine="openpyxl"
+        )
     df.columns = normalize_columns(df.columns)
     return df
+
 
 # =========================
 # Upload
