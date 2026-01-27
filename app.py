@@ -232,6 +232,13 @@ summary["EIS ER"] = numcol(df_dept, "EIS ER", ["EIS`ER"])
 
 summary["HRDF"] = numcol(df_dept, "HRDF")
 
+summary["PCB"] = numcol(
+    df_dept,
+    "PCB",
+    ["Potongan Cukai", "Income Tax", "Tax"]
+)
+
+
 
 
 # ---- Unpaid Leave ----
@@ -272,6 +279,8 @@ summary["Gross Pay"] = (
 
 
 summary["MEC"] = numcol(df_dept,"MEC",["Medical"])
+summary["MC"] = numcol(df_dept, "MC", ["Medical Claim", "Medical"])
+
 
 summary["EPF EE"] = numcol(df_dept,"EPF EE",["EPF`EE"])
 summary["Socso EE"] = numcol(
@@ -286,6 +295,7 @@ summary["Total Deduction"] = (
     summary["EPF EE"]
     + summary["Socso EE"]
     + summary["EIS EE"]
+    + summary ["PCB"]
 )
 
 
