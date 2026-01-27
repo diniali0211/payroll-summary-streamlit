@@ -274,12 +274,12 @@ summary["Gross Pay"] = (
     - summary["Unpaid Leave"]
     - summary["SNT"]
     - summary["Overpaid"]
-    
 ).round(2)
 
 
+
 summary["MEC"] = numcol(df_dept,"MEC",["Medical"])
-summary["MC"] = numcol(df_dept, "MC", ["Medical Claim", "Medical"])
+
 
 
 summary["EPF EE"] = numcol(df_dept,"EPF EE",["EPF`EE"])
@@ -300,13 +300,11 @@ summary["Total Deduction"] = (
 
 
 summary["Net Pay"] = (
-    summary["Gross"]
-    - summary["UPL"]
-    - summary["SNT"]
-    - summary["Overpaid"]
+    summary["Gross Pay"]
     - summary["Total Deduction"]
     + summary["MEC"]
 ).round(2)
+
 
 # =========================
 # Active vs Abscond
