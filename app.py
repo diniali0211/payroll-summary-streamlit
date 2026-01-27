@@ -151,6 +151,28 @@ df_dept = df[df[dept_col].astype(str) == str(selected_dept)].copy()
 # =========================
 summary = df_dept.copy()
 
+# ---- Identity Columns ----
+
+join_col = first_match(["Join Date", "Joined", "Date Joined"], df_dept.columns)
+resign_col = first_match(["Resign Date", "Resign", "Termination Date"], df_dept.columns)
+pos_col = first_match(["Pos", "Position"], df_dept.columns)
+
+summary["Join Date"] = (
+    pd.to_datetime(df_dept[join_col], errors="coerce")
+    if join_col else pd.NaT
+)
+
+summary["Resign Date"] = (
+    pd.to_datetime(df_dept[resign_col], errors="coerce")
+    if resign_col else pd.NaT
+)
+
+summary["Position"] = (
+    df_dept[pos_col].astype(str)
+    if pos_col else ""
+)
+
+
 # ---- Salary / OT / Shift ----
 summary["Monthly Salary"] = numcol(df_dept, "M/Basic", ["Monthly Salary", "Basic"])
 
@@ -252,14 +274,20 @@ summary["Gross Pay"] = (
 summary["MEC"] = numcol(df_dept,"MEC",["Medical"])
 
 summary["EPF EE"] = numcol(df_dept,"EPF EE",["EPF`EE"])
-summary["SOC EE"] = numcol(df_dept,"SOC EE",["SOC`EE"])
+summary["Socso EE"] = numcol(
+    df_dept,
+    "Soc EE",
+    ["SOC EE", "SOCSO EE", "SOC`EE"]
+)
+
 summary["EIS EE"] = numcol(df_dept,"EIS EE",["EIS`EE"])
 
 summary["Total Deduction"] = (
-    summary["EPF EE"] +
-    summary["SOC EE"] +
-    summary["EIS EE"]
+    summary["EPF EE"]
+    + summary["Socso EE"]
+    + summary["EIS EE"]
 )
+
 
 summary["Net Pay"] = (
     summary["Gross"]
@@ -285,15 +313,14 @@ def build_export_block(df_block):
 
     df_out = df_block.copy()
 
-    # rename internal MEC -> Medical Fee
     df_out.rename(columns={
-        "MEC": "Medical Fee"
+        "MEC": "Medical Fee",
     }, inplace=True)
 
-    # keep only KITTING columns
     df_out = df_out[[c for c in FINAL_EXPORT_COLUMNS if c in df_out.columns]]
 
     return df_out
+
 
 
 active_clean = build_export_block(active_df.drop(columns=["_Net"]))
@@ -338,4 +365,3 @@ st.download_button(
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     use_container_width=True,
 )
-
