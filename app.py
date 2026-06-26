@@ -70,6 +70,17 @@ def numcol(df, name, alts=None, default=0):
             return pd.to_numeric(df[c], errors="coerce").fillna(0)
     return pd.Series(default, index=df.index)
 
+def get_engine(filename):
+    """Pick the correct pandas Excel engine based on file extension.
+
+    .xls            -> xlrd   (legacy binary Excel format)
+    .xlsx / .xlsm   -> openpyxl
+    """
+    ext = filename.lower().rsplit(".", 1)[-1]
+    if ext == "xls":
+        return "xlrd"
+    return "openpyxl"
+
 # =========================
 # Canonical KITTING Export Layout
 # =========================
@@ -112,22 +123,23 @@ if not uploaded_file:
     st.stop()
 
 file_bytes = uploaded_file.getvalue()
+engine = get_engine(uploaded_file.name)
 
 @st.cache_data(show_spinner=False)
-def get_sheet_names(file_bytes):
+def get_sheet_names(file_bytes, engine):
     with io.BytesIO(file_bytes) as bio:
-        return tuple(pd.ExcelFile(bio).sheet_names)
+        return tuple(pd.ExcelFile(bio, engine=engine).sheet_names)
 
 @st.cache_data(show_spinner=False)
-def read_sheet(file_bytes, sheet_name, header_row):
+def read_sheet(file_bytes, sheet_name, header_row, engine):
     with io.BytesIO(file_bytes) as bio:
-        df = pd.read_excel(bio, sheet_name=sheet_name, header=header_row)
+        df = pd.read_excel(bio, sheet_name=sheet_name, header=header_row, engine=engine)
     df.columns = normalize_columns(df.columns)
     return df
 
 with st.sidebar:
     header_row = st.number_input("Header row (0-indexed)", value=2)
-    sheet = st.selectbox("Sheet", get_sheet_names(file_bytes))
+    sheet = st.selectbox("Sheet", get_sheet_names(file_bytes, engine))
     if st.button("🚪 Log out"):
         st.session_state.pop("auth_user", None)
         st.rerun()
@@ -135,7 +147,7 @@ with st.sidebar:
 # =========================
 # Read Data
 # =========================
-df = read_sheet(file_bytes, sheet, header_row)
+df = read_sheet(file_bytes, sheet, header_row, engine)
 
 dept_col = first_match(["C/Center","Cost Center","Department","Dept"], df.columns) or df.columns[0]
 
