@@ -109,7 +109,7 @@ FINAL_EXPORT_COLUMNS = [
 
     "Unpaid Leave","Notice in Lieu","Overpaid",
 
-    "EPF EE","Socso EE","EIS EE","PCB",
+    "EPF EE","Socso EE","SKBBK","EIS EE","PCB",
 
     "Total Deduction","Net Pay",
 ]
@@ -303,11 +303,14 @@ summary["Socso EE"] = numcol(
 
 summary["EIS EE"] = numcol(df_dept,"EIS EE",["EIS`EE"])
 
+summary["SKBBK"] = numcol(df_dept,"SKBBK")
+
 summary["Total Deduction"] = (
     summary["EPF EE"]
     + summary["Socso EE"]
     + summary["EIS EE"]
     + summary ["PCB"]
+    + summary["SKBBK"]
 )
 
 
